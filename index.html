@@ -5,12 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>写真読み取りテスト</title>
 <style>
-  body { font-family: sans-serif; padding: 20px; max-width: 480px; margin: 0 auto; }
+  body { font-family: sans-serif; padding: 20px; max-width: 480px; margin: 0 auto; background: #f5f5f5; }
   h1 { font-size: 18px; margin-bottom: 16px; }
   input[type=file] { display: block; margin-bottom: 12px; }
   button { padding: 12px 24px; font-size: 15px; background: #000; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
   button:disabled { opacity: 0.4; }
-  #result { margin-top: 16px; padding: 14px; background: #f5f5f5; border-radius: 8px; white-space: pre-wrap; font-size: 14px; display: none; }
+
+  .result-card {
+    margin-top: 16px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    display: none;
+    border: 1px solid #e0e0e0;
+  }
+  .result-card h2 { font-size: 14px; color: #888; margin-bottom: 12px; }
+  .field { margin-bottom: 12px; }
+  .field label { font-size: 12px; color: #888; display: block; margin-bottom: 3px; }
+  .field .value { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+
   #error { margin-top: 16px; padding: 14px; background: #fee; border-radius: 8px; font-size: 14px; color: red; display: none; }
 </style>
 </head>
@@ -18,7 +31,27 @@
 <h1>📷 写真読み取りテスト</h1>
 <input type="file" accept="image/*" id="photo" onchange="onPhoto()">
 <button id="btn" onclick="run()" disabled>読み取る</button>
-<div id="result"></div>
+
+<div class="result-card" id="result-card">
+  <h2>読み取り結果</h2>
+  <div class="field">
+    <label>取引日</label>
+    <div class="value" id="f-date">-</div>
+  </div>
+  <div class="field">
+    <label>カード名</label>
+    <div class="value" id="f-name">-</div>
+  </div>
+  <div class="field">
+    <label>金額</label>
+    <div class="value" id="f-amount">-</div>
+  </div>
+  <div class="field">
+    <label>メモ（プラットフォーム）</label>
+    <div class="value" id="f-memo">-</div>
+  </div>
+</div>
+
 <div id="error"></div>
 
 <script>
@@ -50,7 +83,7 @@ function onPhoto() {
 }
 
 async function run() {
-  document.getElementById('result').style.display = 'none';
+  document.getElementById('result-card').style.display = 'none';
   document.getElementById('error').style.display = 'none';
   document.getElementById('btn').disabled = true;
   document.getElementById('btn').textContent = '読み取り中...';
@@ -61,12 +94,12 @@ async function run() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5',
-        max_tokens: 1000,
+        max_tokens: 500,
         messages: [{
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
-            { type: 'text', text: 'この画像はメルカリの取引明細です。以下の情報だけを抽出して日本語で出力してください。\n・カード名\n・金額\n・購入日時\n・プラットフォーム（メルカリ）' }
+            { type: 'text', text: 'この画像はメルカリの取引明細です。以下の情報をJSON形式のみで返してください。他の文字は一切不要です。\n{"date":"購入日時をYYYY-MM-DD形式","name":"カード名","amount":"金額を数字のみ","memo":"プラットフォーム名"}' }
           ]
         }]
       })
@@ -74,8 +107,13 @@ async function run() {
     const data = await res.json();
     const text = data.content?.find(c => c.type === 'text')?.text;
     if (text) {
-      document.getElementById('result').textContent = text;
-      document.getElementById('result').style.display = 'block';
+      const clean = text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      document.getElementById('f-date').textContent = parsed.date || '-';
+      document.getElementById('f-name').textContent = parsed.name || '-';
+      document.getElementById('f-amount').textContent = parsed.amount ? '¥' + Number(parsed.amount).toLocaleString() : '-';
+      document.getElementById('f-memo').textContent = parsed.memo || '-';
+      document.getElementById('result-card').style.display = 'block';
     } else {
       document.getElementById('error').textContent = JSON.stringify(data);
       document.getElementById('error').style.display = 'block';
