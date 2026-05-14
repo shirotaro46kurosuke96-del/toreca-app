@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>トレカ売買管理</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap');
+  :root{
+    --bg:#F7F6F2;--surface:#FFFFFF;--border:#E5E3DC;--text:#1A1916;--text-sub:#6B6960;
+    --buy-bg:#EBF3FE;--buy-text:#1A56A0;--sell-bg:#E6F6EE;--sell-text:#166534;
+    --accent:#1A1916;--danger:#DC2626;--radius:12px;--radius-sm:8px;
+    --worker-url:'';
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 20px 12px;position:sticky;top:0;z-index:50;}
+  .header-title{font-size:18px;font-weight:700;}
+  .header-sub{font-size:12px;color:var(--text-sub);margin-top:1px;}
+
+  .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:61px;z-index:40;}
+  .nav-btn{flex:1;padding:11px 4px;font-size:13px;font-family:inherit;font-weight:500;color:var(--text-sub);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;}
+  .nav-btn.active{color:var(--text);border-bottom-color:var(--text);}
+
+  .page{display:none;padding:20px;}.page.active{display:block;}
+
+  .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+  .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .summary-label{font-size:11px;color:var(--text-sub);font-weight:500;letter-spacing:0.3px;margin-bottom:6px;}
+  .summary-value{font-family:'DM Mono',monospace;font-size:19px;font-weight:500;}
+  .summary-value.profit{color:#166534;}.summary-value.loss{color:var(--danger);}
+
+  .section-label{font-size:12px;font-weight:700;color:var(--text-sub);letter-spacing:0.5px;margin-bottom:10px;}
+
+  .tx-list{display:flex;flex-direction:column;gap:8px;}
+  .tx-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;gap:10px;}
+  .tx-thumb{width:52px;height:52px;border-radius:6px;object-fit:cover;flex-shrink:0;border:1px solid var(--border);}
+  .tx-thumb-placeholder{width:52px;height:52px;border-radius:6px;background:var(--bg);border:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
+  .tx-badge{font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px;flex-shrink:0;}
+  .tx-badge.buy{background:var(--buy-bg);color:var(--buy-text);}
+  .tx-badge.sell{background:var(--sell-bg);color:var(--sell-text);}
+  .tx-info{flex:1;min-width:0;}
+  .tx-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tx-meta{font-size:11px;color:var(--text-sub);margin-top:2px;}
+  .tx-right{text-align:right;flex-shrink:0;}
+  .tx-amount{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;}
+  .tx-amount.buy{color:var(--buy-text);}
+  .tx-amount.sell{color:var(--sell-text);}
+  .tx-delete{background:none;border:none;color:var(--text-sub);font-size:13px;cursor:pointer;opacity:0.4;margin-top:4px;display:block;}
+
+  .empty{text-align:center;padding:40px 20px;color:var(--text-sub);font-size:14px;}
+
+  /* 入力ページ */
+  .step-bar{display:flex;margin-bottom:24px;}
+  .step{flex:1;text-align:center;font-size:12px;font-weight:500;color:var(--text-sub);padding-bottom:8px;border-bottom:2px solid var(--border);transition:all .2s;}
+  .step.active{color:var(--text);border-bottom-color:var(--text);font-weight:700;}
+  .step.done{color:var(--sell-text);border-bottom-color:var(--sell-text);}
+
+  .type-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+  .type-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--radius);padding:20px 12px;text-align:center;cursor:pointer;font-family:inherit;transition:all .15s;}
+  .type-btn.selected.buy{border-color:var(--buy-text);background:var(--buy-bg);}
+  .type-btn.selected.sell{border-color:var(--sell-text);background:var(--sell-bg);}
+  .type-icon{font-size:28px;display:block;margin-bottom:6px;}
+  .type-label{font-size:15px;font-weight:700;color:var(--text);}
+  .type-sub{font-size:11px;color:var(--text-sub);margin-top:2px;}
+
+  .upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;position:relative;overflow:hidden;margin-bottom:12px;transition:all .15s;}
+  .upload-zone:hover{border-color:#BCBAB2;background:#FAFAF8;}
+  .upload-zone input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;}
+  .upload-icon{font-size:32px;display:block;margin-bottom:6px;}
+  .upload-text{font-size:14px;font-weight:500;}
+  .upload-sub{font-size:12px;color:var(--text-sub);margin-top:3px;}
+
+  .preview-wrap{display:none;margin-bottom:12px;position:relative;}
+  .preview-img{width:100%;max-height:180px;object-fit:cover;border-radius:var(--radius);border:1px solid var(--border);}
+  .preview-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.55);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+  .loading-wrap{display:none;flex-direction:column;align-items:center;padding:28px;gap:10px;}
+  .spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-size:13px;color:var(--text-sub);}
+
+  .confirm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:14px;}
+  .confirm-title{font-size:12px;font-weight:700;color:var(--text-sub);letter-spacing:0.4px;margin-bottom:12px;}
+  .field-row{margin-bottom:10px;}
+  .field-label{font-size:12px;color:var(--text-sub);font-weight:500;margin-bottom:3px;display:block;}
+  .field-input{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg);color:var(--text);}
+  .field-input:focus{outline:none;border-color:var(--text);}
+
+  .btn{width:100%;padding:13px;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;border:none;transition:opacity .15s,transform .1s;}
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+  .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border);margin-top:10px;}
+  .btn-danger{background:#FEF2F2;color:var(--danger);border:1px solid #FECACA;}
+
+  /* フィルター */
+  .filter-row{display:flex;gap:8px;margin-bottom:14px;}
+  .filter-btn{padding:7px 14px;font-size:13px;font-family:inherit;font-weight:500;border:1px solid var(--border);border-radius:99px;background:none;cursor:pointer;color:var(--text-sub);transition:all .15s;}
+  .filter-btn.active{background:var(--text);color:#fff;border-color:var(--text);}
+
+  /* 設定 */
+  .setting-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;}
+  .setting-box p{font-size:13px;color:var(--text-sub);line-height:1.6;margin-bottom:10px;}
+  .input-row{display:flex;gap:8px;}
+  .text-input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);}
+  .text-input:focus{outline:none;border-color:var(--text);}
+  .save-btn{padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .status-ok{font-size:12px;color:var(--sell-text);font-weight:500;display:none;margin-top:6px;}
+
+  .hint-box{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:#166534;line-height:1.7;margin-bottom:14px;}
+  .warn-box{background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius-sm);padding:12px 14px;font-size:13px;color:#92400E;line-height:1.6;margin-bottom:14px;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(12px);background:var(--text);color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;opacity:0;transition:opacity .25s,transform .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-title">🃏 トレカ売買管理</div>
+  <div class="header-sub" id="header-sub">確定申告サポートアプリ</div>
+</div>
+
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('home')" id="tab-home">ホーム</button>
+  <button class="nav-btn" onclick="showPage('input')" id="tab-input">＋ 登録</button>
+  <button class="nav-btn" onclick="showPage('history')" id="tab-history">履歴</button>
+  <button class="nav-btn" onclick="showPage('settings')" id="tab-settings">設定</button>
+</nav>
+
+<!-- ホーム -->
+<div class="page active" id="page-home">
+  <div class="summary-grid">
+    <div class="summary-card"><div class="summary-label">売上合計</div><div class="summary-value profit" id="s-sell">¥0</div></div>
+    <div class="summary-card"><div class="summary-label">仕入合計</div><div class="summary-value" id="s-buy">¥0</div></div>
+    <div class="summary-card"><div class="summary-label">粗利益</div><div class="summary-value" id="s-profit">¥0</div></div>
+    <div class="summary-card"><div class="summary-label">取引件数</div><div class="summary-value" id="s-count">0件</div></div>
+  </div>
+  <div class="section-label">最近の取引</div>
+  <div class="tx-list" id="home-list"><div class="empty">取引がまだありません</div></div>
+</div>
+
+<!-- 登録 -->
+<div class="page" id="page-input">
+  <div class="step-bar">
+    <div class="step active" id="step1">① 種別</div>
+    <div class="step" id="step2">② 写真</div>
+    <div class="step" id="step3">③ 確認・保存</div>
+  </div>
+
+  <!-- ステップ1 -->
+  <div id="s1">
+    <div class="section-label" style="margin-bottom:14px;">取引の種類を選んでください</div>
+    <div class="type-grid">
+      <button class="type-btn buy" id="btn-buy" onclick="selectType('buy')">
+        <span class="type-icon">📥</span>
+        <span class="type-label">仕入れ</span>
+        <span class="type-sub">カードを買った</span>
+      </button>
+      <button class="type-btn sell" id="btn-sell" onclick="selectType('sell')">
+        <span class="type-icon">📤</span>
+        <span class="type-label">売上げ</span>
+        <span class="type-sub">カードを売った</span>
+      </button>
+    </div>
+    <button class="btn btn-primary" id="btn-next1" onclick="goStep2()" disabled>次へ → 写真を選ぶ</button>
+  </div>
+
+  <!-- ステップ2 -->
+  <div id="s2" style="display:none;">
+    <div class="section-label" style="margin-bottom:14px;">取引明細の写真を選んでください</div>
+    <div class="upload-zone" id="upload-zone">
+      <input type="file" accept="image/*" id="photo-input" onchange="handlePhoto(this)">
+      <span class="upload-icon">📷</span>
+      <div class="upload-text">タップして写真を選択</div>
+      <div class="upload-sub">メルカリ・ヤフオク等のスクショOK</div>
+    </div>
+    <div class="preview-wrap" id="preview-wrap">
+      <img id="preview-img" class="preview-img" alt="プレビュー">
+      <button class="preview-remove" onclick="removePhoto()">✕</button>
+    </div>
+    <div class="loading-wrap" id="loading-wrap">
+      <div class="spinner"></div>
+      <div class="loading-text">クロ助が読み取り中...</div>
+    </div>
+    <button class="btn btn-primary" id="btn-analyze" onclick="doAnalyze()" disabled>登録する</button>
+    <button class="btn btn-secondary" onclick="goStep1()">← 戻る</button>
+  </div>
+
+  <!-- ステップ3 -->
+  <div id="s3" style="display:none;">
+    <div class="section-label" style="margin-bottom:14px;">内容を確認・修正してから保存</div>
+    <div class="confirm-card">
+      <div class="confirm-title">読み取り結果（修正できます）</div>
+      <div class="field-row">
+        <label class="field-label">カード名</label>
+        <input class="field-input" type="text" id="f-name" placeholder="カード名">
+      </div>
+      <div class="field-row">
+        <label class="field-label">金額（円）</label>
+        <input class="field-input" type="number" id="f-amount" placeholder="例：3000">
+      </div>
+      <div class="field-row">
+        <label class="field-label">日付</label>
+        <input class="field-input" type="date" id="f-date">
+      </div>
+      <div class="field-row">
+        <label class="field-label">プラットフォーム</label>
+        <select class="field-input" id="f-platform">
+          <option value="">不明</option>
+          <option>メルカリ</option>
+          <option>ヤフオク</option>
+          <option>ラクマ</option>
+          <option>カードショップ</option>
+          <option>その他</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label class="field-label">メモ（任意）</label>
+        <input class="field-input" type="text" id="f-memo" placeholder="自由記入">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveTx()">✅ 保存する</button>
+    <button class="btn btn-secondary" onclick="goStep2()">← 写真に戻る</button>
+  </div>
+</div>
+
+<!-- 履歴 -->
+<div class="page" id="page-history">
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">すべて</button>
+    <button class="filter-btn" onclick="setFilter('buy',this)">仕入れ</button>
+    <button class="filter-btn" onclick="setFilter('sell',this)">売上げ</button>
+  </div>
+  <div class="tx-list" id="history-list"><div class="empty">取引がまだありません</div></div>
+</div>
+
+<!-- 設定 -->
+<div class="page" id="page-settings">
+  <div class="section-label" style="margin-bottom:10px;">Worker URL設定</div>
+  <div class="warn-box" id="worker-warn">
+    ⚠️ Worker URLが未設定です。写真の自動読み取りが使えません。
+  </div>
+  <div class="setting-box">
+    <p>Cloudflare WorkerのURLを入力してください。</p>
+    <div class="input-row">
+      <input class="text-input" type="text" id="worker-input" placeholder="https://xxxx.workers.dev">
+      <button class="save-btn" onclick="saveWorkerUrl()">保存</button>
+    </div>
+    <div class="status-ok" id="worker-status">✅ Worker URLが設定されています</div>
+  </div>
+
+  <div class="section-label" style="margin-bottom:10px;margin-top:20px;">CSVエクスポート</div>
+  <div class="setting-box">
+    <p>確定申告用にデータをCSVで書き出します。<br>Googleドライブへの保存をおすすめします。</p>
+    <button class="btn btn-secondary" onclick="exportCSV()">📥 CSVをダウンロード</button>
+  </div>
+
+  <div class="section-label" style="margin-bottom:10px;margin-top:20px;">データ管理</div>
+  <button class="btn btn-danger" onclick="clearAll()">🗑 全データを削除</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let txs = JSON.parse(localStorage.getItem('tcg_2go') || '[]');
+let workerUrl = localStorage.getItem('tcg_worker') || '';
+let currentType = '';
+let currentFilter = 'all';
+let currentPhotoB64 = null;
+let currentPhotoType = 'image/jpeg';
+let currentThumbB64 = null;
+
+// 初期化
+if (workerUrl) {
+  document.getElementById('worker-input').value = workerUrl;
+  document.getElementById('worker-status').style.display = 'block';
+  document.getElementById('worker-warn').style.display = 'none';
+}
+
+function save() { localStorage.setItem('tcg_2go', JSON.stringify(txs)); }
+function fmt(n) { return '¥' + Math.round(n).toLocaleString('ja-JP'); }
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'home') renderHome();
+  if (name === 'history') renderHistory();
+}
+
+function txCard(t) {
+  const thumb = t.thumb
+    ? `<img class="tx-thumb" src="${t.thumb}" alt="カード">`
+    : `<div class="tx-thumb-placeholder">🃏</div>`;
+  return `<div class="tx-card">
+    ${thumb}
+    <div class="tx-info">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+        <span class="tx-badge ${t.type}">${t.type==='buy'?'仕入':'売上'}</span>
+        <span class="tx-name">${t.name||'(名称不明)'}</span>
+      </div>
+      <div class="tx-meta">${t.date}　${t.platform||''}</div>
+    </div>
+    <div class="tx-right">
+      <div class="tx-amount ${t.type}">${t.type==='buy'?'-':'+'}${fmt(t.amount)}</div>
+      <button class="tx-delete" onclick="deleteTx(${t.id})">✕ 削除</button>
+    </div>
+  </div>`;
+}
+
+function renderHome() {
+  const sell = txs.filter(t=>t.type==='sell').reduce((s,t)=>s+t.amount,0);
+  const buy  = txs.filter(t=>t.type==='buy').reduce((s,t)=>s+t.amount,0);
+  const profit = sell - buy;
+  document.getElementById('s-sell').textContent = fmt(sell);
+  document.getElementById('s-buy').textContent = fmt(buy);
+  const pe = document.getElementById('s-profit');
+  pe.textContent = fmt(profit);
+  pe.className = 'summary-value ' + (profit >= 0 ? 'profit' : 'loss');
+  document.getElementById('s-count').textContent = txs.length + '件';
+  const recent = [...txs].sort((a,b)=>b.id-a.id).slice(0,5);
+  document.getElementById('home-list').innerHTML = recent.length ? recent.map(txCard).join('') : '<div class="empty">取引がまだありません</div>';
+}
+
+function renderHistory() {
+  const filtered = currentFilter==='all' ? txs : txs.filter(t=>t.type===currentFilter);
+  const sorted = [...filtered].sort((a,b)=>b.id-a.id);
+  document.getElementById('history-list').innerHTML = sorted.length ? sorted.map(txCard).join('') : '<div class="empty">取引がありません</div>';
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
+
+function deleteTx(id) {
+  if (!confirm('この取引を削除しますか？')) return;
+  txs = txs.filter(t=>t.id!==id);
+  save();
+  renderHome();
+  renderHistory();
+  toast('削除しました');
+}
+
+// ステップ管理
+function setStep(n) {
+  ['step1','step2','step3'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    el.className = 'step' + (i+1===n?' active':i+1<n?' done':'');
+  });
+  document.getElementById('s1').style.display = n===1?'block':'none';
+  document.getElementById('s2').style.display = n===2?'block':'none';
+  document.getElementById('s3').style.display = n===3?'block':'none';
+}
+
+function selectType(type) {
+  currentType = type;
+  document.getElementById('btn-buy').classList.toggle('selected', type==='buy');
+  document.getElementById('btn-sell').classList.toggle('selected', type==='sell');
+  document.getElementById('btn-next1').disabled = false;
+}
+
+function goStep1() {
+  currentType = '';
+  currentPhotoB64 = null;
+  currentThumbB64 = null;
+  document.getElementById('btn-buy').classList.remove('selected');
+  document.getElementById('btn-sell').classList.remove('selected');
+  document.getElementById('btn-next1').disabled = true;
+  resetPhotoUI();
+  setStep(1);
+}
+
+function goStep2() {
+  resetPhotoUI();
+  setStep(2);
+}
+
+function resetPhotoUI() {
+  currentPhotoB64 = null;
+  currentThumbB64 = null;
+  document.getElementById('photo-input').value = '';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('loading-wrap').style.display = 'none';
+  document.getElementById('btn-analyze').disabled = true;
+}
+
+// 写真処理
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  currentPhotoType = 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = e => {
+    const dataUrl = e.target.result;
+    const img = new Image();
+    img.onload = () => {
+      // API送信用：最大800pxに縮小して圧縮（100KB以下に抑える）
+      const apiCanvas = document.createElement('canvas');
+      const maxSize = 800;
+      let w = img.width, h = img.height;
+      if (w > maxSize || h > maxSize) {
+        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+        else { w = Math.round(w * maxSize / h); h = maxSize; }
+      }
+      apiCanvas.width = w; apiCanvas.height = h;
+      apiCanvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      currentPhotoB64 = apiCanvas.toDataURL('image/jpeg', 0.6).split(',')[1];
+
+      // サムネイル生成（縮小）
+      const canvas = document.createElement('canvas');
+      const size = 100;
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      // 左上のサムネイル部分をトリミング（メルカリUIに合わせた比率）
+      const srcX = img.width * 0.04;
+      const srcY = img.height * 0.18;
+      const srcW = img.width * 0.2;
+      const srcH = srcW;
+      ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, size, size);
+      currentThumbB64 = canvas.toDataURL('image/jpeg', 0.7);
+    };
+    img.src = dataUrl;
+
+    document.getElementById('preview-img').src = dataUrl;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+    document.getElementById('btn-analyze').disabled = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() { resetPhotoUI(); document.getElementById('upload-zone').style.display = 'block'; }
+
+// Workerを経由してClaude APIを叩く
+async function doAnalyze() {
+  if (!workerUrl) { toast('設定タブでWorker URLを入力してください'); return; }
+  if (!currentPhotoB64) { toast('写真を選んでください'); return; }
+
+  document.getElementById('s2').style.display = 'none';
+  document.getElementById('loading-wrap').style.display = 'flex';
+
+  try {
+    const res = await fetch(workerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-3-5-haiku-20241022',
+        max_tokens: 400,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: currentPhotoType, data: currentPhotoB64 } },
+            { type: 'text', text: 'この画像はトレーディングカードの取引明細です。以下の情報をJSONのみで返してください。他の文字は一切不要です。\n{"card_name":"カード名またはnull","amount":金額の数値またはnull,"date":"YYYY-MM-DD形式またはnull","platform":"メルカリ/ヤフオク/ラクマ/カードショップ/その他/nullのいずれか"}' }
+          ]
+        }]
+      })
+    });
+
+    const data = await res.json();
+    const text = (data.content||[]).find(c=>c.type==='text')?.text||'{}';
+    const clean = text.replace(/```json|```/g,'').trim();
+    let parsed = {};
+    try { parsed = JSON.parse(clean); } catch(e) {}
+
+    document.getElementById('loading-wrap').style.display = 'none';
+    document.getElementById('f-name').value = parsed.card_name || '';
+    document.getElementById('f-amount').value = parsed.amount || '';
+    document.getElementById('f-date').value = parsed.date || new Date().toISOString().split('T')[0];
+    const sel = document.getElementById('f-platform');
+    const opts = ['メルカリ','ヤフオク','ラクマ','カードショップ','その他'];
+    sel.value = opts.includes(parsed.platform) ? parsed.platform : '';
+    document.getElementById('f-memo').value = '';
+    setStep(3);
+
+  } catch(e) {
+    document.getElementById('loading-wrap').style.display = 'none';
+    document.getElementById('s2').style.display = 'block';
+    toast('読み取りに失敗しました。Worker URLを確認してください。');
+  }
+}
+
+function saveTx() {
+  const name = document.getElementById('f-name').value.trim();
+  const amount = parseFloat(document.getElementById('f-amount').value);
+  const date = document.getElementById('f-date').value;
+  if (!name) { toast('カード名を入力してください'); return; }
+  if (!amount || amount <= 0) { toast('金額を入力してください'); return; }
+  if (!date) { toast('日付を入力してください'); return; }
+
+  txs.push({
+    id: Date.now(),
+    type: currentType,
+    name,
+    amount,
+    date,
+    platform: document.getElementById('f-platform').value,
+    memo: document.getElementById('f-memo').value.trim(),
+    thumb: currentThumbB64
+  });
+  save();
+  toast('保存しました！');
+  setTimeout(() => { goStep1(); showPage('home'); }, 800);
+}
+
+// Worker URL保存
+function saveWorkerUrl() {
+  let url = document.getElementById('worker-input').value.trim();
+  if (url && !url.startsWith('http')) url = 'https://' + url;
+  workerUrl = url;
+  localStorage.setItem('tcg_worker', workerUrl);
+  document.getElementById('worker-status').style.display = workerUrl ? 'block' : 'none';
+  document.getElementById('worker-warn').style.display = workerUrl ? 'none' : 'block';
+  toast(workerUrl ? 'Worker URLを保存しました' : 'Worker URLを削除しました');
+}
+
+function exportCSV() {
+  if (!txs.length) { toast('取引データがありません'); return; }
+  const header = '種別,カード名,金額,日付,プラットフォーム,メモ';
+  const rows = txs.map(t =>
+    [t.type==='buy'?'仕入':'売上', t.name, t.amount, t.date, t.platform||'', t.memo||'']
+      .map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')
+  );
+  const csv = '\uFEFF' + [header,...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  a.download = 'トレカ売買_' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  toast('CSVをダウンロードしました');
+}
+
+function clearAll() {
+  if (!confirm('全データを削除しますか？この操作は取り消せません。')) return;
+  txs = [];
+  save();
+  renderHome();
+  toast('削除しました');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+renderHome();
+</script>
+</body>
+</html>
