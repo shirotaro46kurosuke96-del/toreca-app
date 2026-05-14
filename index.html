@@ -8,101 +8,70 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { font-family: sans-serif; background: #F7F6F2; color: #1A1916; max-width: 480px; margin: 0 auto; min-height: 100vh; }
 
-  /* ナビ */
   .nav { display: flex; background: #fff; border-bottom: 1px solid #E5E3DC; position: sticky; top: 0; z-index: 50; }
   .nav-btn { flex: 1; padding: 12px 4px; font-size: 13px; font-weight: 500; color: #6B6960; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; }
   .nav-btn.active { color: #1A1916; border-bottom-color: #1A1916; }
 
-  /* ページ */
   .page { display: none; padding: 20px; }
   .page.active { display: block; }
 
-  /* 追加画面 */
   .section-label { font-size: 12px; font-weight: 700; color: #6B6960; letter-spacing: 0.5px; margin-bottom: 10px; }
 
-  /* 種別選択 */
   .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
-  .type-btn {
-    background: #fff;
-    border: 2px solid #E5E3DC;
-    border-radius: 12px;
-    padding: 20px 12px;
-    text-align: center;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all .15s;
-  }
+  .type-btn { background: #fff; border: 2px solid #E5E3DC; border-radius: 12px; padding: 20px 12px; text-align: center; cursor: pointer; font-family: inherit; transition: all .15s; }
   .type-btn.selected.buy { border-color: #1A56A0; background: #EBF3FE; }
   .type-btn.selected.sell { border-color: #166534; background: #E6F6EE; }
   .type-icon { font-size: 28px; display: block; margin-bottom: 6px; }
   .type-label { font-size: 15px; font-weight: 700; display: block; }
   .type-sub { font-size: 11px; color: #6B6960; display: block; margin-top: 2px; }
 
-  /* アップロード */
-  .upload-zone {
-    border: 2px dashed #E5E3DC;
-    border-radius: 12px;
-    padding: 28px 20px;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    background: #fff;
-    margin-bottom: 16px;
-    transition: all .15s;
-  }
-  .upload-zone:hover { border-color: #BCBAB2; }
+  .upload-zone { border: 2px dashed #E5E3DC; border-radius: 12px; padding: 28px 20px; text-align: center; cursor: pointer; position: relative; background: #fff; margin-bottom: 16px; }
   .upload-zone input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
   .upload-zone .icon { font-size: 32px; display: block; margin-bottom: 6px; }
   .upload-zone .text { font-size: 14px; font-weight: 500; }
   .upload-zone .sub { font-size: 12px; color: #6B6960; margin-top: 3px; }
 
-  /* プレビュー */
   .preview-wrap { display: none; margin-bottom: 16px; position: relative; }
   .preview-wrap img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid #E5E3DC; display: block; }
-  .preview-remove {
-    position: absolute; top: 8px; right: 8px;
-    background: rgba(0,0,0,0.55); color: #fff;
-    border: none; border-radius: 50%;
-    width: 28px; height: 28px; font-size: 14px;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-  }
+  .preview-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  /* 読み取りボタン */
-  .btn-read {
-    width: 100%; padding: 14px;
-    background: #1A1916; color: #fff;
-    border: none; border-radius: 12px;
-    font-size: 15px; font-weight: 700;
-    font-family: inherit; cursor: pointer;
-    transition: opacity .15s;
-  }
-  .btn-read:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-primary { width: 100%; padding: 14px; background: #1A1916; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: opacity .15s; margin-bottom: 10px; }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-secondary { width: 100%; padding: 11px; background: #fff; color: #1A1916; border: 1px solid #E5E3DC; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; margin-bottom: 10px; }
 
-  /* ステータス */
-  #status { margin-top: 12px; font-size: 13px; color: #6B6960; text-align: center; display: none; }
+  #status { margin-top: 4px; font-size: 13px; color: #6B6960; text-align: center; display: none; min-height: 20px; }
 
-  /* 読み取り結果カード */
-  .result-card {
-    display: none;
-    margin-top: 16px;
-    background: #fff;
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #E5E3DC;
-  }
-  .result-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .result-icon { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid #E5E3DC; }
+  /* 結果カード */
+  .result-card { display: none; margin-top: 16px; background: #fff; border-radius: 12px; padding: 14px; border: 1px solid #E5E3DC; }
+  .result-row { display: flex; align-items: center; gap: 10px; }
+  .result-icon-wrap { position: relative; flex-shrink: 0; }
+  .result-icon { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; border: 1px solid #E5E3DC; cursor: pointer; display: block; }
+  .icon-edit-btn { position: absolute; bottom: -6px; right: -6px; background: #1A1916; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .result-info { flex: 1; min-width: 0; }
-  .result-date { font-size: 11px; color: #6B6960; margin-bottom: 3px; }
-  .result-name { font-size: 14px; font-weight: 500; color: #1A1916; word-break: break-all; }
+  .result-date { font-size: 11px; color: #6B6960; margin-bottom: 2px; }
+  .result-name { font-size: 13px; font-weight: 500; color: #1A1916; word-break: break-all; }
   .result-memo { font-size: 11px; color: #6B6960; margin-top: 2px; }
   .result-amount { font-size: 16px; font-weight: 700; color: #1A1916; flex-shrink: 0; white-space: nowrap; }
 
   #error { margin-top: 12px; padding: 12px; background: #FEF2F2; border-radius: 8px; font-size: 13px; color: #DC2626; display: none; }
+
+  /* 拡大モーダル */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .modal-overlay.show { display: flex; }
+  .modal-img { max-width: 90vw; max-height: 60vh; border-radius: 12px; object-fit: contain; }
+  .modal-close { color: #fff; font-size: 14px; background: rgba(255,255,255,0.2); border: none; border-radius: 99px; padding: 8px 20px; cursor: pointer; }
+
+  /* トリミングモーダル */
+  .crop-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
+  .crop-modal.show { display: flex; }
+  .crop-title { color: #fff; font-size: 14px; font-weight: 500; }
+  .crop-hint { color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; }
+  .crop-canvas-wrap { position: relative; max-width: 100%; }
+  #crop-canvas { border-radius: 8px; max-width: 100%; touch-action: none; }
+  .crop-actions { display: flex; gap: 10px; }
+  .crop-btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; border: none; }
+  .crop-btn-ok { background: #1A1916; color: #fff; }
+  .crop-btn-cancel { background: rgba(255,255,255,0.2); color: #fff; }
 </style>
 </head>
 <body>
@@ -113,14 +82,13 @@
   <button class="nav-btn" onclick="showPage('history')" id="tab-history">履歴</button>
 </nav>
 
-<!-- ホーム（仮） -->
+<!-- ホーム仮 -->
 <div class="page" id="page-home">
   <p style="padding:40px 0;text-align:center;color:#6B6960;font-size:14px;">ホーム画面（準備中）</p>
 </div>
 
 <!-- 追加画面 -->
 <div class="page active" id="page-add">
-
   <div class="section-label" style="margin-bottom:14px;">取引の種類</div>
   <div class="type-grid">
     <button class="type-btn buy" id="btn-buy" onclick="selectType('buy')">
@@ -140,19 +108,22 @@
     <input type="file" accept="image/*" id="photo-input" onchange="handlePhoto(this)">
     <span class="icon">📷</span>
     <div class="text">タップして写真を選択</div>
-    <div class="sub">取引情報が見える状態で撮影してください</div>
+    <div class="sub">商品アイコンとカード名が見える状態で撮影</div>
   </div>
   <div class="preview-wrap" id="preview-wrap">
     <img id="preview-img" alt="プレビュー">
     <button class="preview-remove" onclick="removePhoto()">✕</button>
   </div>
 
-  <button class="btn-read" id="btn-read" onclick="readPhoto()" disabled>📖 読み取る</button>
+  <button class="btn-primary" id="btn-read" onclick="readPhoto()" disabled>📖 読み取る</button>
   <div id="status"></div>
 
   <div class="result-card" id="result-card">
     <div class="result-row">
-      <img class="result-icon" id="result-icon" src="" alt="商品">
+      <div class="result-icon-wrap">
+        <img class="result-icon" id="result-icon" src="" alt="商品" onclick="openZoom()">
+        <button class="icon-edit-btn" onclick="openCrop()" title="トリミング修正">✂</button>
+      </div>
       <div class="result-info">
         <div class="result-date" id="result-date">-</div>
         <div class="result-name" id="result-name">-</div>
@@ -165,9 +136,28 @@
   <div id="error"></div>
 </div>
 
-<!-- 履歴（仮） -->
+<!-- 履歴仮 -->
 <div class="page" id="page-history">
   <p style="padding:40px 0;text-align:center;color:#6B6960;font-size:14px;">履歴画面（準備中）</p>
+</div>
+
+<!-- 拡大モーダル -->
+<div class="modal-overlay" id="zoom-modal" onclick="closeZoom()">
+  <img class="modal-img" id="zoom-img" src="" alt="拡大">
+  <button class="modal-close">閉じる</button>
+</div>
+
+<!-- トリミングモーダル -->
+<div class="crop-modal" id="crop-modal">
+  <div class="crop-title">✂ トリミング範囲を選択</div>
+  <div class="crop-hint">ドラッグして商品画像の範囲を選んでください</div>
+  <div class="crop-canvas-wrap">
+    <canvas id="crop-canvas"></canvas>
+  </div>
+  <div class="crop-actions">
+    <button class="crop-btn crop-btn-cancel" onclick="closeCrop()">キャンセル</button>
+    <button class="crop-btn crop-btn-ok" onclick="applyCrop()">決定</button>
+  </div>
 </div>
 
 <script>
@@ -175,6 +165,10 @@ const WORKER = 'https://square-block-0903.shirotaro46-kurosuke96.workers.dev';
 let currentType = null;
 let b64 = null;
 let fullImgEl = null;
+
+// トリミング用
+let cropStartX, cropStartY, cropEndX, cropEndY, isDragging = false;
+let cropScaleX, cropScaleY;
 
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -187,10 +181,10 @@ function selectType(type) {
   currentType = type;
   document.getElementById('btn-buy').classList.toggle('selected', type === 'buy');
   document.getElementById('btn-sell').classList.toggle('selected', type === 'sell');
-  updateReadBtn();
+  updateBtn();
 }
 
-function updateReadBtn() {
+function updateBtn() {
   document.getElementById('btn-read').disabled = !(currentType && b64);
 }
 
@@ -212,7 +206,7 @@ function handlePhoto(input) {
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       b64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-      updateReadBtn();
+      updateBtn();
     };
     img.src = e.target.result;
     document.getElementById('preview-img').src = e.target.result;
@@ -225,13 +219,12 @@ function handlePhoto(input) {
 }
 
 function removePhoto() {
-  b64 = null;
-  fullImgEl = null;
+  b64 = null; fullImgEl = null;
   document.getElementById('photo-input').value = '';
   document.getElementById('preview-wrap').style.display = 'none';
   document.getElementById('upload-zone').style.display = 'block';
   document.getElementById('result-card').style.display = 'none';
-  updateReadBtn();
+  updateBtn();
 }
 
 function setStatus(msg) {
@@ -259,16 +252,18 @@ async function callWorker(prompt) {
   return text.replace(/```json|```/g, '').trim();
 }
 
-function cropIcon(img, yRatio, sizeRatio) {
+// カード名の左横のアイコンを切り取る
+function cropByNamePosition(img, yRatio) {
   const canvas = document.createElement('canvas');
   const size = 80;
   canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
+  // メルカリUIのアイコンはカード名行の左端、x:4%〜23%、高さはy±9%
   const sx = img.width * 0.04;
   const sy = img.height * yRatio;
-  const sw = img.height * (sizeRatio || 0.09);
+  const sw = img.height * 0.09; // 正方形
   ctx.drawImage(img, sx, sy, sw, sw, 0, 0, size, size);
-  return canvas.toDataURL('image/jpeg', 0.9);
+  return canvas.toDataURL('image/jpeg', 0.92);
 }
 
 async function readPhoto() {
@@ -278,15 +273,9 @@ async function readPhoto() {
   document.getElementById('btn-read').textContent = '読み取り中...';
 
   try {
-    setStatus('① 商品画像の位置を解析中...');
-    const posText = await callWorker(
-      'この画像はメルカリの取引明細のスクリーンショットです。商品のサムネイル画像の位置を教えてください。JSONのみ返してください。\n{"icon_y_ratio": 商品サムネイルの上端のy座標÷画像の高さ(0.0〜1.0), "icon_size_ratio": 商品サムネイルの高さ÷画像の高さ(0.0〜1.0)}'
-    );
-    const pos = JSON.parse(posText);
-
-    setStatus('② 取引情報を読み取り中...');
+    setStatus('① 取引情報を読み取り中...');
     const dataText = await callWorker(
-      'この画像はメルカリの取引明細です。以下の情報をJSON形式のみで返してください。他の文字は一切不要です。\n{"date":"購入日時をYYYY-MM-DD形式","name":"カード名","amount":"金額を数字のみ","memo":"プラットフォーム名"}'
+      'この画像はメルカリの取引明細です。以下の情報をJSON形式のみで返してください。他の文字は一切不要です。\n{"date":"購入日時をYYYY-MM-DD形式","name":"カード名","amount":"金額を数字のみ","memo":"プラットフォーム名","card_name_y_ratio":"カード名テキストのy座標÷画像の高さ(0.0〜1.0の数値)"}'
     );
     const parsed = JSON.parse(dataText);
 
@@ -295,8 +284,10 @@ async function readPhoto() {
     document.getElementById('result-memo').textContent = (currentType === 'buy' ? '仕入れ・' : '売上げ・') + (parsed.memo || '-');
     document.getElementById('result-amount').textContent = parsed.amount ? '¥' + Number(parsed.amount).toLocaleString() : '-';
 
-    if (fullImgEl && pos.icon_y_ratio !== undefined) {
-      document.getElementById('result-icon').src = cropIcon(fullImgEl, pos.icon_y_ratio, pos.icon_size_ratio);
+    // カード名の横位置からアイコンを切り取る
+    if (fullImgEl && parsed.card_name_y_ratio) {
+      const yRatio = parseFloat(parsed.card_name_y_ratio) - 0.01; // 少し上から
+      document.getElementById('result-icon').src = cropByNamePosition(fullImgEl, yRatio);
     }
 
     document.getElementById('result-card').style.display = 'block';
@@ -309,7 +300,79 @@ async function readPhoto() {
 
   document.getElementById('btn-read').disabled = false;
   document.getElementById('btn-read').textContent = '📖 読み取る';
-  updateReadBtn();
+  updateBtn();
+}
+
+// ── 拡大 ──
+function openZoom() {
+  document.getElementById('zoom-img').src = document.getElementById('result-icon').src;
+  document.getElementById('zoom-modal').classList.add('show');
+}
+function closeZoom() {
+  document.getElementById('zoom-modal').classList.remove('show');
+}
+
+// ── トリミング ──
+function openCrop() {
+  if (!fullImgEl) return;
+  const modal = document.getElementById('crop-modal');
+  const canvas = document.getElementById('crop-canvas');
+  const maxW = Math.min(window.innerWidth - 40, 420);
+  const scale = maxW / fullImgEl.width;
+  canvas.width = maxW;
+  canvas.height = fullImgEl.height * scale;
+  cropScaleX = fullImgEl.width / canvas.width;
+  cropScaleY = fullImgEl.height / canvas.height;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(fullImgEl, 0, 0, canvas.width, canvas.height);
+  cropStartX = cropStartY = cropEndX = cropEndY = null;
+  isDragging = false;
+  modal.classList.add('show');
+
+  // タッチ・マウスイベント
+  canvas.ontouchstart = e => { e.preventDefault(); const t = e.touches[0]; const r = canvas.getBoundingClientRect(); cropStartX = t.clientX - r.left; cropStartY = t.clientY - r.top; isDragging = true; };
+  canvas.ontouchmove = e => { e.preventDefault(); if (!isDragging) return; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); cropEndX = t.clientX - r.left; cropEndY = t.clientY - r.top; drawCropOverlay(ctx, canvas); };
+  canvas.ontouchend = () => { isDragging = false; };
+  canvas.onmousedown = e => { const r = canvas.getBoundingClientRect(); cropStartX = e.clientX - r.left; cropStartY = e.clientY - r.top; isDragging = true; };
+  canvas.onmousemove = e => { if (!isDragging) return; const r = canvas.getBoundingClientRect(); cropEndX = e.clientX - r.left; cropEndY = e.clientY - r.top; drawCropOverlay(ctx, canvas); };
+  canvas.onmouseup = () => { isDragging = false; };
+}
+
+function drawCropOverlay(ctx, canvas) {
+  ctx.drawImage(fullImgEl, 0, 0, canvas.width, canvas.height);
+  if (cropStartX === null || cropEndX === null) return;
+  const x = Math.min(cropStartX, cropEndX);
+  const y = Math.min(cropStartY, cropEndY);
+  const w = Math.abs(cropEndX - cropStartX);
+  const h = Math.abs(cropEndY - cropStartY);
+  // 暗くする
+  ctx.fillStyle = 'rgba(0,0,0,0.45)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // 選択範囲を明るく
+  ctx.clearRect(x, y, w, h);
+  ctx.drawImage(fullImgEl, x * cropScaleX, y * cropScaleY, w * cropScaleX, h * cropScaleY, x, y, w, h);
+  // 枠線
+  ctx.strokeStyle = '#fff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+}
+
+function applyCrop() {
+  if (cropStartX === null || cropEndX === null) { closeCrop(); return; }
+  const x = Math.min(cropStartX, cropEndX) * cropScaleX;
+  const y = Math.min(cropStartY, cropEndY) * cropScaleY;
+  const w = Math.abs(cropEndX - cropStartX) * cropScaleX;
+  const h = Math.abs(cropEndY - cropStartY) * cropScaleY;
+  const size = Math.min(w, h); // 正方形に
+  const canvas = document.createElement('canvas');
+  canvas.width = 80; canvas.height = 80;
+  canvas.getContext('2d').drawImage(fullImgEl, x, y, size, size, 0, 0, 80, 80);
+  document.getElementById('result-icon').src = canvas.toDataURL('image/jpeg', 0.92);
+  closeCrop();
+}
+
+function closeCrop() {
+  document.getElementById('crop-modal').classList.remove('show');
 }
 </script>
 </body>
