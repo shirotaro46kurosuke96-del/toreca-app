@@ -65,8 +65,7 @@ async function run() {
         messages: [{
           role: 'user',
           content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
-            { type: 'text', text: 'この画像に書いてある文字を全て読み取って日本語で出力してください。' }
+           { type: 'text', text: 'この画像はメルカリの取引明細です。以下の情報だけを抽出して日本語で出力してください。\n・カード名\n・金額\n・購入日時\n・プラットフォーム（メルカリ）' }
           ]
         }]
       })
