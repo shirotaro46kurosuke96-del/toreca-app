@@ -3,79 +3,199 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>写真読み取りテスト</title>
+<title>トレカ売買管理</title>
 <style>
-  body { font-family: sans-serif; padding: 20px; max-width: 480px; margin: 0 auto; background: #f5f5f5; }
-  h1 { font-size: 18px; margin-bottom: 16px; }
-  input[type=file] { display: block; margin-bottom: 12px; }
-  button { padding: 12px 24px; font-size: 15px; background: #000; color: #fff; border: none; border-radius: 8px; cursor: pointer; }
-  button:disabled { opacity: 0.4; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: sans-serif; background: #F7F6F2; color: #1A1916; max-width: 480px; margin: 0 auto; min-height: 100vh; }
 
-  .tx-row {
+  /* ナビ */
+  .nav { display: flex; background: #fff; border-bottom: 1px solid #E5E3DC; position: sticky; top: 0; z-index: 50; }
+  .nav-btn { flex: 1; padding: 12px 4px; font-size: 13px; font-weight: 500; color: #6B6960; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; font-family: inherit; }
+  .nav-btn.active { color: #1A1916; border-bottom-color: #1A1916; }
+
+  /* ページ */
+  .page { display: none; padding: 20px; }
+  .page.active { display: block; }
+
+  /* 追加画面 */
+  .section-label { font-size: 12px; font-weight: 700; color: #6B6960; letter-spacing: 0.5px; margin-bottom: 10px; }
+
+  /* 種別選択 */
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .type-btn {
+    background: #fff;
+    border: 2px solid #E5E3DC;
+    border-radius: 12px;
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+  }
+  .type-btn.selected.buy { border-color: #1A56A0; background: #EBF3FE; }
+  .type-btn.selected.sell { border-color: #166534; background: #E6F6EE; }
+  .type-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .type-label { font-size: 15px; font-weight: 700; display: block; }
+  .type-sub { font-size: 11px; color: #6B6960; display: block; margin-top: 2px; }
+
+  /* アップロード */
+  .upload-zone {
+    border: 2px dashed #E5E3DC;
+    border-radius: 12px;
+    padding: 28px 20px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    background: #fff;
+    margin-bottom: 16px;
+    transition: all .15s;
+  }
+  .upload-zone:hover { border-color: #BCBAB2; }
+  .upload-zone input { position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+  .upload-zone .icon { font-size: 32px; display: block; margin-bottom: 6px; }
+  .upload-zone .text { font-size: 14px; font-weight: 500; }
+  .upload-zone .sub { font-size: 12px; color: #6B6960; margin-top: 3px; }
+
+  /* プレビュー */
+  .preview-wrap { display: none; margin-bottom: 16px; position: relative; }
+  .preview-wrap img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid #E5E3DC; display: block; }
+  .preview-remove {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0,0,0,0.55); color: #fff;
+    border: none; border-radius: 50%;
+    width: 28px; height: 28px; font-size: 14px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* 読み取りボタン */
+  .btn-read {
+    width: 100%; padding: 14px;
+    background: #1A1916; color: #fff;
+    border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 700;
+    font-family: inherit; cursor: pointer;
+    transition: opacity .15s;
+  }
+  .btn-read:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ステータス */
+  #status { margin-top: 12px; font-size: 13px; color: #6B6960; text-align: center; display: none; }
+
+  /* 読み取り結果カード */
+  .result-card {
     display: none;
     margin-top: 16px;
     background: #fff;
     border-radius: 12px;
-    padding: 14px;
-    border: 1px solid #e0e0e0;
-    align-items: flex-start;
+    padding: 16px;
+    border: 1px solid #E5E3DC;
+  }
+  .result-row {
+    display: flex;
+    align-items: center;
     gap: 10px;
   }
-  .tx-date {
-    font-size: 11px;
-    color: #888;
-    flex-shrink: 0;
-    min-width: 52px;
-    line-height: 1.4;
-  }
-  .tx-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 8px;
-    object-fit: cover;
-    flex-shrink: 0;
-    border: 1px solid #e0e0e0;
-  }
-  .tx-info { flex: 1; min-width: 0; }
-  .tx-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: #1a1a1a;
-    line-height: 1.4;
-    word-break: break-all;
-  }
-  .tx-memo { font-size: 11px; color: #888; margin-top: 3px; }
-  .tx-amount { font-size: 15px; font-weight: 700; color: #1a1a1a; flex-shrink: 0; white-space: nowrap; }
+  .result-icon { width: 52px; height: 52px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid #E5E3DC; }
+  .result-info { flex: 1; min-width: 0; }
+  .result-date { font-size: 11px; color: #6B6960; margin-bottom: 3px; }
+  .result-name { font-size: 14px; font-weight: 500; color: #1A1916; word-break: break-all; }
+  .result-memo { font-size: 11px; color: #6B6960; margin-top: 2px; }
+  .result-amount { font-size: 16px; font-weight: 700; color: #1A1916; flex-shrink: 0; white-space: nowrap; }
 
-  #error { margin-top: 16px; padding: 14px; background: #fee; border-radius: 8px; font-size: 14px; color: red; display: none; }
-  #status { margin-top: 12px; font-size: 13px; color: #888; display: none; }
+  #error { margin-top: 12px; padding: 12px; background: #FEF2F2; border-radius: 8px; font-size: 13px; color: #DC2626; display: none; }
 </style>
 </head>
 <body>
-<h1>📷 写真読み取りテスト</h1>
-<input type="file" accept="image/*" id="photo" onchange="onPhoto()">
-<button id="btn" onclick="run()" disabled>読み取る</button>
-<div id="status"></div>
 
-<div class="tx-row" id="tx-row">
-  <div class="tx-date" id="tx-date">-</div>
-  <img class="tx-icon" id="tx-icon" src="" alt="アイコン">
-  <div class="tx-info">
-    <div class="tx-name" id="tx-name">-</div>
-    <div class="tx-memo" id="tx-memo">-</div>
-  </div>
-  <div class="tx-amount" id="tx-amount">-</div>
+<nav class="nav">
+  <button class="nav-btn" onclick="showPage('home')" id="tab-home">ホーム</button>
+  <button class="nav-btn active" onclick="showPage('add')" id="tab-add">＋ 追加</button>
+  <button class="nav-btn" onclick="showPage('history')" id="tab-history">履歴</button>
+</nav>
+
+<!-- ホーム（仮） -->
+<div class="page" id="page-home">
+  <p style="padding:40px 0;text-align:center;color:#6B6960;font-size:14px;">ホーム画面（準備中）</p>
 </div>
 
-<div id="error"></div>
+<!-- 追加画面 -->
+<div class="page active" id="page-add">
+
+  <div class="section-label" style="margin-bottom:14px;">取引の種類</div>
+  <div class="type-grid">
+    <button class="type-btn buy" id="btn-buy" onclick="selectType('buy')">
+      <span class="type-icon">📥</span>
+      <span class="type-label">仕入れ</span>
+      <span class="type-sub">カードを買った</span>
+    </button>
+    <button class="type-btn sell" id="btn-sell" onclick="selectType('sell')">
+      <span class="type-icon">📤</span>
+      <span class="type-label">売上げ</span>
+      <span class="type-sub">カードを売った</span>
+    </button>
+  </div>
+
+  <div class="section-label">明細写真</div>
+  <div class="upload-zone" id="upload-zone">
+    <input type="file" accept="image/*" id="photo-input" onchange="handlePhoto(this)">
+    <span class="icon">📷</span>
+    <div class="text">タップして写真を選択</div>
+    <div class="sub">取引情報が見える状態で撮影してください</div>
+  </div>
+  <div class="preview-wrap" id="preview-wrap">
+    <img id="preview-img" alt="プレビュー">
+    <button class="preview-remove" onclick="removePhoto()">✕</button>
+  </div>
+
+  <button class="btn-read" id="btn-read" onclick="readPhoto()" disabled>📖 読み取る</button>
+  <div id="status"></div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-row">
+      <img class="result-icon" id="result-icon" src="" alt="商品">
+      <div class="result-info">
+        <div class="result-date" id="result-date">-</div>
+        <div class="result-name" id="result-name">-</div>
+        <div class="result-memo" id="result-memo">-</div>
+      </div>
+      <div class="result-amount" id="result-amount">-</div>
+    </div>
+  </div>
+
+  <div id="error"></div>
+</div>
+
+<!-- 履歴（仮） -->
+<div class="page" id="page-history">
+  <p style="padding:40px 0;text-align:center;color:#6B6960;font-size:14px;">履歴画面（準備中）</p>
+</div>
 
 <script>
 const WORKER = 'https://square-block-0903.shirotaro46-kurosuke96.workers.dev';
+let currentType = null;
 let b64 = null;
 let fullImgEl = null;
 
-function onPhoto() {
-  const file = document.getElementById('photo').files[0];
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+function selectType(type) {
+  currentType = type;
+  document.getElementById('btn-buy').classList.toggle('selected', type === 'buy');
+  document.getElementById('btn-sell').classList.toggle('selected', type === 'sell');
+  updateReadBtn();
+}
+
+function updateReadBtn() {
+  document.getElementById('btn-read').disabled = !(currentType && b64);
+}
+
+function handlePhoto(input) {
+  const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
@@ -92,11 +212,26 @@ function onPhoto() {
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       b64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-      document.getElementById('btn').disabled = false;
+      updateReadBtn();
     };
     img.src = e.target.result;
+    document.getElementById('preview-img').src = e.target.result;
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('upload-zone').style.display = 'none';
+    document.getElementById('result-card').style.display = 'none';
+    document.getElementById('error').style.display = 'none';
   };
   reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  b64 = null;
+  fullImgEl = null;
+  document.getElementById('photo-input').value = '';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('upload-zone').style.display = 'block';
+  document.getElementById('result-card').style.display = 'none';
+  updateReadBtn();
 }
 
 function setStatus(msg) {
@@ -112,13 +247,10 @@ async function callWorker(prompt) {
     body: JSON.stringify({
       model: 'claude-haiku-4-5',
       max_tokens: 500,
-      messages: [{
-        role: 'user',
-        content: [
-          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
-          { type: 'text', text: prompt }
-        ]
-      }]
+      messages: [{ role: 'user', content: [
+        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+        { type: 'text', text: prompt }
+      ]}]
     })
   });
   const data = await res.json();
@@ -127,63 +259,57 @@ async function callWorker(prompt) {
   return text.replace(/```json|```/g, '').trim();
 }
 
-function cropIcon(img, yRatio, heightRatio) {
+function cropIcon(img, yRatio, sizeRatio) {
   const canvas = document.createElement('canvas');
   const size = 80;
-  canvas.width = size;
-  canvas.height = size;
+  canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
-  // x位置は常に左端付近（4%）、幅は高さと同じにして正方形
   const sx = img.width * 0.04;
   const sy = img.height * yRatio;
-  const sw = img.height * heightRatio; // 正方形になるよう高さ基準
+  const sw = img.height * (sizeRatio || 0.09);
   ctx.drawImage(img, sx, sy, sw, sw, 0, 0, size, size);
   return canvas.toDataURL('image/jpeg', 0.9);
 }
 
-async function run() {
-  document.getElementById('tx-row').style.display = 'none';
+async function readPhoto() {
+  document.getElementById('result-card').style.display = 'none';
   document.getElementById('error').style.display = 'none';
-  document.getElementById('btn').disabled = true;
-  document.getElementById('btn').textContent = '読み取り中...';
+  document.getElementById('btn-read').disabled = true;
+  document.getElementById('btn-read').textContent = '読み取り中...';
 
   try {
-    // Step1: アイコン位置を特定
-    setStatus('① 商品アイコンの位置を解析中...');
+    setStatus('① 商品画像の位置を解析中...');
     const posText = await callWorker(
-      'この画像はメルカリの取引明細のスクリーンショットです。商品のサムネイル画像（カードの写真）の位置を教えてください。JSONのみ返してください。\n{"icon_y_ratio": 商品サムネイルの上端のy座標÷画像の高さ(0.0〜1.0), "icon_size_ratio": 商品サムネイルの高さ÷画像の高さ(0.0〜1.0)}'
+      'この画像はメルカリの取引明細のスクリーンショットです。商品のサムネイル画像の位置を教えてください。JSONのみ返してください。\n{"icon_y_ratio": 商品サムネイルの上端のy座標÷画像の高さ(0.0〜1.0), "icon_size_ratio": 商品サムネイルの高さ÷画像の高さ(0.0〜1.0)}'
     );
     const pos = JSON.parse(posText);
 
-    // Step2: 取引データを取得
     setStatus('② 取引情報を読み取り中...');
     const dataText = await callWorker(
       'この画像はメルカリの取引明細です。以下の情報をJSON形式のみで返してください。他の文字は一切不要です。\n{"date":"購入日時をYYYY-MM-DD形式","name":"カード名","amount":"金額を数字のみ","memo":"プラットフォーム名"}'
     );
     const parsed = JSON.parse(dataText);
 
-    // 日付を2行表示用に変換（YYYY-MM-DD → YYYY/MM\nDD）
-    const dateStr = (parsed.date || '-').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$1/$2\n$3');
-    document.getElementById('tx-date').textContent = dateStr;
-    document.getElementById('tx-name').textContent = parsed.name || '-';
-    document.getElementById('tx-memo').textContent = parsed.memo || '-';
-    document.getElementById('tx-amount').textContent = parsed.amount ? '¥' + Number(parsed.amount).toLocaleString() : '-';
+    document.getElementById('result-date').textContent = parsed.date || '-';
+    document.getElementById('result-name').textContent = parsed.name || '-';
+    document.getElementById('result-memo').textContent = (currentType === 'buy' ? '仕入れ・' : '売上げ・') + (parsed.memo || '-');
+    document.getElementById('result-amount').textContent = parsed.amount ? '¥' + Number(parsed.amount).toLocaleString() : '-';
 
-    // アイコンをトリミング
     if (fullImgEl && pos.icon_y_ratio !== undefined) {
-      document.getElementById('tx-icon').src = cropIcon(fullImgEl, pos.icon_y_ratio, pos.icon_size_ratio || 0.09);
+      document.getElementById('result-icon').src = cropIcon(fullImgEl, pos.icon_y_ratio, pos.icon_size_ratio);
     }
 
-    document.getElementById('tx-row').style.display = 'flex';
+    document.getElementById('result-card').style.display = 'block';
     setStatus('');
   } catch(e) {
-    document.getElementById('error').textContent = e.message;
+    document.getElementById('error').textContent = 'エラー：' + e.message;
     document.getElementById('error').style.display = 'block';
     setStatus('');
   }
 
-  document.getElementById('btn').disabled = false;
-  document.getElementById('btn').textContent = '読み取る';
+  document.getElementById('btn-read').disabled = false;
+  document.getElementById('btn-read').textContent = '📖 読み取る';
+  updateReadBtn();
 }
 </script>
 </body>
