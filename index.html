@@ -35,13 +35,11 @@
   .preview-wrap img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid #E5E3DC; display: block; }
   .preview-remove { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.55); color: #fff; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  .btn-primary { width: 100%; padding: 14px; background: #1A1916; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: opacity .15s; margin-bottom: 10px; }
+  .btn-primary { width: 100%; padding: 14px; background: #1A1916; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; margin-bottom: 10px; }
   .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-secondary { width: 100%; padding: 11px; background: #fff; color: #1A1916; border: 1px solid #E5E3DC; border-radius: 12px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; margin-bottom: 10px; }
 
-  #status { margin-top: 4px; font-size: 13px; color: #6B6960; text-align: center; display: none; min-height: 20px; }
+  #status { margin-top: 4px; font-size: 13px; color: #6B6960; text-align: center; display: none; }
 
-  /* 結果カード */
   .result-card { display: none; margin-top: 16px; background: #fff; border-radius: 12px; padding: 14px; border: 1px solid #E5E3DC; }
   .result-row { display: flex; align-items: center; gap: 10px; }
   .result-icon-wrap { position: relative; flex-shrink: 0; }
@@ -56,22 +54,21 @@
   #error { margin-top: 12px; padding: 12px; background: #FEF2F2; border-radius: 8px; font-size: 13px; color: #DC2626; display: none; }
 
   /* 拡大モーダル */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
   .modal-overlay.show { display: flex; }
-  .modal-img { max-width: 90vw; max-height: 60vh; border-radius: 12px; object-fit: contain; }
-  .modal-close { color: #fff; font-size: 14px; background: rgba(255,255,255,0.2); border: none; border-radius: 99px; padding: 8px 20px; cursor: pointer; }
+  .modal-img { max-width: 80vw; max-height: 80vw; border-radius: 12px; image-rendering: auto; }
+  .modal-close { color: #fff; font-size: 14px; background: rgba(255,255,255,0.2); border: none; border-radius: 99px; padding: 8px 20px; cursor: pointer; font-family: inherit; }
 
   /* トリミングモーダル */
-  .crop-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 20px; }
+  .crop-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 200; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 20px; }
   .crop-modal.show { display: flex; }
-  .crop-title { color: #fff; font-size: 14px; font-weight: 500; }
-  .crop-hint { color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; }
-  .crop-canvas-wrap { position: relative; max-width: 100%; }
-  #crop-canvas { border-radius: 8px; max-width: 100%; touch-action: none; }
+  .crop-title { color: #fff; font-size: 14px; font-weight: 700; }
+  .crop-hint { color: rgba(255,255,255,0.6); font-size: 12px; text-align: center; line-height: 1.5; }
+  #crop-canvas { border-radius: 8px; max-width: 100%; touch-action: none; display: block; }
   .crop-actions { display: flex; gap: 10px; }
-  .crop-btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; border: none; }
-  .crop-btn-ok { background: #1A1916; color: #fff; }
-  .crop-btn-cancel { background: rgba(255,255,255,0.2); color: #fff; }
+  .crop-btn { padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; border: none; }
+  .crop-btn-ok { background: #fff; color: #1A1916; }
+  .crop-btn-cancel { background: rgba(255,255,255,0.15); color: #fff; }
 </style>
 </head>
 <body>
@@ -82,12 +79,10 @@
   <button class="nav-btn" onclick="showPage('history')" id="tab-history">履歴</button>
 </nav>
 
-<!-- ホーム仮 -->
 <div class="page" id="page-home">
   <p style="padding:40px 0;text-align:center;color:#6B6960;font-size:14px;">ホーム画面（準備中）</p>
 </div>
 
-<!-- 追加画面 -->
 <div class="page active" id="page-add">
   <div class="section-label" style="margin-bottom:14px;">取引の種類</div>
   <div class="type-grid">
@@ -132,11 +127,9 @@
       <div class="result-amount" id="result-amount">-</div>
     </div>
   </div>
-
   <div id="error"></div>
 </div>
 
-<!-- 履歴仮 -->
 <div class="page" id="page-history">
   <p style="padding:40px 0;text-align:center;color:#6B6960;font-size:14px;">履歴画面（準備中）</p>
 </div>
@@ -150,10 +143,8 @@
 <!-- トリミングモーダル -->
 <div class="crop-modal" id="crop-modal">
   <div class="crop-title">✂ トリミング範囲を選択</div>
-  <div class="crop-hint">ドラッグして商品画像の範囲を選んでください</div>
-  <div class="crop-canvas-wrap">
-    <canvas id="crop-canvas"></canvas>
-  </div>
+  <div class="crop-hint">ドラッグして商品画像の範囲を選んでください<br>決定すると正方形に切り取られます</div>
+  <canvas id="crop-canvas"></canvas>
   <div class="crop-actions">
     <button class="crop-btn crop-btn-cancel" onclick="closeCrop()">キャンセル</button>
     <button class="crop-btn crop-btn-ok" onclick="applyCrop()">決定</button>
@@ -162,11 +153,17 @@
 
 <script>
 const WORKER = 'https://square-block-0903.shirotaro46-kurosuke96.workers.dev';
+
+// iPhone 15 Pro Maxの実スクショサイズ: 1290×2796px
+// 商品アイコン座標: 左上(30,830) 右下(145,940)
+// 比率: x=30/1290=0.023, y=830/2796=0.297, size=115/1290=0.089
+const ICON_X = 0.023;
+const ICON_Y = 0.297;
+const ICON_SIZE = 0.089;
+
 let currentType = null;
 let b64 = null;
 let fullImgEl = null;
-
-// トリミング用
 let cropStartX, cropStartY, cropEndX, cropEndY, isDragging = false;
 let cropScaleX, cropScaleY;
 
@@ -233,35 +230,14 @@ function setStatus(msg) {
   el.style.display = msg ? 'block' : 'none';
 }
 
-async function callWorker(prompt) {
-  const res = await fetch(WORKER, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5',
-      max_tokens: 500,
-      messages: [{ role: 'user', content: [
-        { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
-        { type: 'text', text: prompt }
-      ]}]
-    })
-  });
-  const data = await res.json();
-  const text = data.content?.find(c => c.type === 'text')?.text;
-  if (!text) throw new Error(JSON.stringify(data));
-  return text.replace(/```json|```/g, '').trim();
-}
-
-// カード名の左横のアイコンを切り取る
-function cropByNamePosition(img, yRatio) {
+function cropIcon(img) {
   const canvas = document.createElement('canvas');
   const size = 80;
   canvas.width = size; canvas.height = size;
   const ctx = canvas.getContext('2d');
-  // メルカリUIのアイコンはカード名行の左端、x:4%〜23%、高さはy±9%
-  const sx = img.width * 0.04;
-  const sy = img.height * yRatio;
-  const sw = img.height * 0.09; // 正方形
+  const sx = img.width * ICON_X;
+  const sy = img.height * ICON_Y;
+  const sw = img.width * ICON_SIZE;
   ctx.drawImage(img, sx, sy, sw, sw, 0, 0, size, size);
   return canvas.toDataURL('image/jpeg', 0.92);
 }
@@ -273,21 +249,32 @@ async function readPhoto() {
   document.getElementById('btn-read').textContent = '読み取り中...';
 
   try {
-    setStatus('① 取引情報を読み取り中...');
-    const dataText = await callWorker(
-      'この画像はメルカリの取引明細です。以下の情報をJSON形式のみで返してください。他の文字は一切不要です。\n{"date":"購入日時をYYYY-MM-DD形式","name":"カード名","amount":"金額を数字のみ","memo":"プラットフォーム名","card_name_y_ratio":"カード名テキストのy座標÷画像の高さ(0.0〜1.0の数値)"}'
-    );
-    const parsed = JSON.parse(dataText);
+    setStatus('取引情報を読み取り中...');
+    const res = await fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+          { type: 'text', text: 'この画像はメルカリの取引明細です。以下の情報をJSON形式のみで返してください。他の文字は一切不要です。\n{"date":"購入日時をYYYY-MM-DD形式","name":"カード名","amount":"金額を数字のみ","memo":"プラットフォーム名"}' }
+        ]}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.find(c => c.type === 'text')?.text;
+    if (!text) throw new Error(JSON.stringify(data));
+    const parsed = JSON.parse(text.replace(/```json|```/g, '').trim());
 
     document.getElementById('result-date').textContent = parsed.date || '-';
     document.getElementById('result-name').textContent = parsed.name || '-';
     document.getElementById('result-memo').textContent = (currentType === 'buy' ? '仕入れ・' : '売上げ・') + (parsed.memo || '-');
     document.getElementById('result-amount').textContent = parsed.amount ? '¥' + Number(parsed.amount).toLocaleString() : '-';
 
-    // カード名の横位置からアイコンを切り取る
-    if (fullImgEl && parsed.card_name_y_ratio) {
-      const yRatio = parseFloat(parsed.card_name_y_ratio) - 0.01; // 少し上から
-      document.getElementById('result-icon').src = cropByNamePosition(fullImgEl, yRatio);
+    // 固定座標でアイコンを切り取る
+    if (fullImgEl) {
+      document.getElementById('result-icon').src = cropIcon(fullImgEl);
     }
 
     document.getElementById('result-card').style.display = 'block';
@@ -303,21 +290,19 @@ async function readPhoto() {
   updateBtn();
 }
 
-// ── 拡大 ──
+// 拡大
 function openZoom() {
   document.getElementById('zoom-img').src = document.getElementById('result-icon').src;
   document.getElementById('zoom-modal').classList.add('show');
 }
-function closeZoom() {
-  document.getElementById('zoom-modal').classList.remove('show');
-}
+function closeZoom() { document.getElementById('zoom-modal').classList.remove('show'); }
 
-// ── トリミング ──
+// トリミング
 function openCrop() {
   if (!fullImgEl) return;
   const modal = document.getElementById('crop-modal');
   const canvas = document.getElementById('crop-canvas');
-  const maxW = Math.min(window.innerWidth - 40, 420);
+  const maxW = Math.min(window.innerWidth - 40, 400);
   const scale = maxW / fullImgEl.width;
   canvas.width = maxW;
   canvas.height = fullImgEl.height * scale;
@@ -326,35 +311,35 @@ function openCrop() {
   const ctx = canvas.getContext('2d');
   ctx.drawImage(fullImgEl, 0, 0, canvas.width, canvas.height);
   cropStartX = cropStartY = cropEndX = cropEndY = null;
-  isDragging = false;
   modal.classList.add('show');
 
-  // タッチ・マウスイベント
-  canvas.ontouchstart = e => { e.preventDefault(); const t = e.touches[0]; const r = canvas.getBoundingClientRect(); cropStartX = t.clientX - r.left; cropStartY = t.clientY - r.top; isDragging = true; };
-  canvas.ontouchmove = e => { e.preventDefault(); if (!isDragging) return; const t = e.touches[0]; const r = canvas.getBoundingClientRect(); cropEndX = t.clientX - r.left; cropEndY = t.clientY - r.top; drawCropOverlay(ctx, canvas); };
-  canvas.ontouchend = () => { isDragging = false; };
-  canvas.onmousedown = e => { const r = canvas.getBoundingClientRect(); cropStartX = e.clientX - r.left; cropStartY = e.clientY - r.top; isDragging = true; };
-  canvas.onmousemove = e => { if (!isDragging) return; const r = canvas.getBoundingClientRect(); cropEndX = e.clientX - r.left; cropEndY = e.clientY - r.top; drawCropOverlay(ctx, canvas); };
-  canvas.onmouseup = () => { isDragging = false; };
-}
+  function getPos(e) {
+    const r = canvas.getBoundingClientRect();
+    if (e.touches) return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
 
-function drawCropOverlay(ctx, canvas) {
-  ctx.drawImage(fullImgEl, 0, 0, canvas.width, canvas.height);
-  if (cropStartX === null || cropEndX === null) return;
-  const x = Math.min(cropStartX, cropEndX);
-  const y = Math.min(cropStartY, cropEndY);
-  const w = Math.abs(cropEndX - cropStartX);
-  const h = Math.abs(cropEndY - cropStartY);
-  // 暗くする
-  ctx.fillStyle = 'rgba(0,0,0,0.45)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  // 選択範囲を明るく
-  ctx.clearRect(x, y, w, h);
-  ctx.drawImage(fullImgEl, x * cropScaleX, y * cropScaleY, w * cropScaleX, h * cropScaleY, x, y, w, h);
-  // 枠線
-  ctx.strokeStyle = '#fff';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, w, h);
+  function draw() {
+    ctx.drawImage(fullImgEl, 0, 0, canvas.width, canvas.height);
+    if (cropStartX === null || cropEndX === null) return;
+    const x = Math.min(cropStartX, cropEndX);
+    const y = Math.min(cropStartY, cropEndY);
+    const w = Math.abs(cropEndX - cropStartX);
+    const h = Math.abs(cropEndY - cropStartY);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(x, y, w, h);
+    ctx.drawImage(fullImgEl, x * cropScaleX, y * cropScaleY, w * cropScaleX, h * cropScaleY, x, y, w, h);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.strokeRect(x, y, w, h);
+  }
+
+  canvas.ontouchstart = e => { e.preventDefault(); const p = getPos(e); cropStartX = p.x; cropStartY = p.y; isDragging = true; };
+  canvas.ontouchmove = e => { e.preventDefault(); if (!isDragging) return; const p = getPos(e); cropEndX = p.x; cropEndY = p.y; draw(); };
+  canvas.ontouchend = () => { isDragging = false; };
+  canvas.onmousedown = e => { const p = getPos(e); cropStartX = p.x; cropStartY = p.y; isDragging = true; };
+  canvas.onmousemove = e => { if (!isDragging) return; const p = getPos(e); cropEndX = p.x; cropEndY = p.y; draw(); };
+  canvas.onmouseup = () => { isDragging = false; };
 }
 
 function applyCrop() {
@@ -363,17 +348,15 @@ function applyCrop() {
   const y = Math.min(cropStartY, cropEndY) * cropScaleY;
   const w = Math.abs(cropEndX - cropStartX) * cropScaleX;
   const h = Math.abs(cropEndY - cropStartY) * cropScaleY;
-  const size = Math.min(w, h); // 正方形に
-  const canvas = document.createElement('canvas');
-  canvas.width = 80; canvas.height = 80;
-  canvas.getContext('2d').drawImage(fullImgEl, x, y, size, size, 0, 0, 80, 80);
-  document.getElementById('result-icon').src = canvas.toDataURL('image/jpeg', 0.92);
+  const size = Math.min(w, h);
+  const c = document.createElement('canvas');
+  c.width = 80; c.height = 80;
+  c.getContext('2d').drawImage(fullImgEl, x, y, size, size, 0, 0, 80, 80);
+  document.getElementById('result-icon').src = c.toDataURL('image/jpeg', 0.92);
   closeCrop();
 }
 
-function closeCrop() {
-  document.getElementById('crop-modal').classList.remove('show');
-}
+function closeCrop() { document.getElementById('crop-modal').classList.remove('show'); }
 </script>
 </body>
 </html>
